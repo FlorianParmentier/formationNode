@@ -1,20 +1,41 @@
-let http = require('http');
+let express = require('express');
 
-let server = http.createServer(function(req, res) {
-    res.writeHead(200, { 'Contant-type': 'text/html' });
-    res.end('<button>Test</button>');
+let app = express();
+app.engine('ejs', require('ejs').renderFile);
+app.set('view engine', 'ejs');
+
+//Classic route
+app.get('/', (req, res) => {
+    res.setHeader('Content-type', 'text/plain');
+    res.send('Website home');
 });
-server.listen(8000);
-console.log(server.name + ' is listening at ' + server.port);
 
-// let http = require('http');
-// let url = require('url');
-// let querystring = require('querystring');
+app.get('/button', (req, res) => {
+    res.setHeader('Content-type', 'text/plain');
+    res.send('Website button');
+});
 
-// let server = http.createServer(function(req, res) {
-//     let params = querystring.parse(url.parse(req.url).query);
-//     res.writeHead(200, { 'Contant-type': 'text/html' });
-//     res.end(params.nom + ' ' + params.prenom);
-// });
-// server.listen(8000);
-// console.log(server.name + ' is listening at ' + server.port);
+//Dynamic route
+app.get('/user/:userId/mail', (req, res) => {
+    let userId = req.params.userId;
+    res.setHeader('Content-type', 'text/plain');
+    res.send(
+        'User with id ' +
+            userId +
+            ' got the following email address : ' +
+            userId +
+            '@daveo.fr'
+    );
+});
+
+app.get('/intern/:name', (req, res) => {
+    let name = req.params.name;
+    res.render('intern.ejs', { intern: name });
+});
+
+app.use((req, res, next) => {
+    res.setHeader('Content-type', 'text/plain');
+    res.status(404).send('Not found !');
+});
+
+app.listen(8000);
